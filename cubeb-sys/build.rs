@@ -104,6 +104,14 @@ fn main() {
     let android = target.contains("android");
     let mut cfg = cmake::Config::new(&libcubeb_path);
 
+    // Nested Cargo must not inherit the parent workspace's locked target directory.
+    // Match the backend archive search paths below; keep all generated output in OUT_DIR.
+    let backend = if darwin { "cubeb-coreaudio-rs" } else { "cubeb-pulse-rs" };
+    let rust_target_dir = Path::new(&libcubeb_path).join("src").join(backend).join("target");
+    cfg.env("CARGO_TARGET_DIR", &rust_target_dir);
+    // CMake closes the inherited jobserver descriptors before launching nested Cargo.
+    cfg.env("CARGO_MAKEFLAGS", "").env("CARGO_BUILD_JOBS", "1");
+
     if darwin {
         let cmake_osx_arch = if target.contains("aarch64") {
             // Apple Silicon
