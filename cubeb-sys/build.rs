@@ -109,6 +109,7 @@ fn main() {
     let backend = if darwin { "cubeb-coreaudio-rs" } else { "cubeb-pulse-rs" };
     let rust_target_dir = Path::new(&libcubeb_path).join("src").join(backend).join("target");
     cfg.env("CARGO_TARGET_DIR", &rust_target_dir);
+    cfg.env("CARGO_BUILD_BUILD_DIR", rust_target_dir.join("build"));
     // CMake closes the inherited jobserver descriptors before launching nested Cargo.
     cfg.env("CARGO_MAKEFLAGS", "").env("CARGO_BUILD_JOBS", "1");
 
